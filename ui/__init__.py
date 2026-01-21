@@ -14,7 +14,7 @@ from .charts import (
     create_boss_distribution,
     create_skill_distribution,
     create_journey_timeline,
-    create_ehp_ehb_gauge,
+    create_ehp_ehb_display,
 )
 from .pages import (
     render_profile_page,
@@ -40,7 +40,7 @@ __all__ = [
     "create_boss_distribution",
     "create_skill_distribution",
     "create_journey_timeline",
-    "create_ehp_ehb_gauge",
+    "create_ehp_ehb_display",
     # Pages
     "render_profile_page",
     "render_skills_page",

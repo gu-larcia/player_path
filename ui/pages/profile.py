@@ -14,7 +14,7 @@ from ui.components import (
 from ui.charts import (
     create_skill_radar,
     create_playstyle_bars,
-    create_ehp_ehb_gauge,
+    create_ehp_ehb_display,
 )
 
 
@@ -50,25 +50,10 @@ def render_profile_page(
     
     st.divider()
     
-    # EHP/EHB gauges
+    # EHP/EHB display
     render_section_header("Efficiency Metrics", "⏱️")
-    gauge_fig = create_ehp_ehb_gauge(profile.ehp, profile.ehb)
-    st.plotly_chart(gauge_fig, use_container_width=True, config={'displayModeBar': False})
-    
-    # Efficiency explanation
-    with st.expander("What are EHP and EHB?"):
-        st.markdown("""
-**EHP (Efficient Hours Played)** estimates how many hours you've spent training skills,
-assuming optimal methods. Higher EHP indicates more time spent skilling.
-
-**EHB (Efficient Hours Bossed)** estimates how many hours you've spent killing bosses,
-based on expected kills per hour at each boss. Higher EHB indicates more PvM experience.
-
-The ratio of EHP to EHB helps determine your playstyle orientation:
-- **High EHP, Low EHB** → Skiller-oriented
-- **Low EHP, High EHB** → PvM-oriented
-- **Balanced** → All-rounder
-""")
+    efficiency_fig = create_ehp_ehb_display(profile.ehp, profile.ehb)
+    st.plotly_chart(efficiency_fig, use_container_width=True, config={'displayModeBar': False})
     
     st.divider()
     

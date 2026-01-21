@@ -3,7 +3,6 @@
 import plotly.graph_objects as go
 from typing import Dict, List, Any
 import pandas as pd
-import math
 
 from config import COLORS, SKILL_CATEGORIES
 
@@ -16,17 +15,24 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
     category_names = []
     category_scores = []
     
-    max_possible_xp = 200_000_000
-    
+    # Calculate total XP per category first to find the max for relative scaling
+    category_xp = {}
     for cat_name, skill_names in categories.items():
         total_xp = sum(
             skills[s].experience 
             for s in skill_names 
             if s in skills
         )
-        max_xp = max_possible_xp * len(skill_names)
-        if total_xp > 0:
-            score = math.log10(total_xp + 1) / math.log10(max_xp + 1) * 100
+        category_xp[cat_name] = total_xp
+    
+    # Use relative scaling based on player's own distribution
+    max_cat_xp = max(category_xp.values()) if category_xp.values() else 1
+    
+    for cat_name, skill_names in categories.items():
+        total_xp = category_xp[cat_name]
+        # Scale relative to player's highest category (so highest is always 100)
+        if max_cat_xp > 0:
+            score = (total_xp / max_cat_xp) * 100
         else:
             score = 0
         
@@ -230,7 +236,10 @@ def create_skill_distribution(skills: Dict[str, Any]) -> go.Figure:
         labels=labels,
         parents=parents,
         values=values,
-        marker=dict(colors=colors),
+        marker=dict(
+            colors=colors,
+            line=dict(width=2, color=COLORS["background"])
+        ),
         textinfo="label+percent parent",
         hovertemplate="<b>%{label}</b><br>XP: %{value:,.0f}<extra></extra>",
     ))
@@ -316,44 +325,42 @@ def create_journey_timeline(timeline: List[Dict], milestones: List[Dict] = None)
     return fig
 
 
-def create_ehp_ehb_gauge(ehp: float, ehb: float) -> go.Figure:
-    """Create a dual gauge showing EHP and EHB."""
+def create_ehp_ehb_display(ehp: float, ehb: float) -> go.Figure:
+    """Create a celebratory display showing EHP and EHB as achievements."""
     
     fig = go.Figure()
     
+    # EHP indicator - positioned left
     fig.add_trace(go.Indicator(
-        mode="gauge+number",
+        mode="number",
         value=ehp,
-        title={'text': "EHP", 'font': {'size': 14}},
-        gauge={
-            'axis': {'range': [0, max(5000, ehp * 1.2)]},
-            'bar': {'color': COLORS["gathering"]},
-            'bgcolor': COLORS["surface"],
-            'bordercolor': COLORS["muted"],
+        title={'text': "⏱️ Efficient Hours Played", 'font': {'size': 16, 'color': COLORS["gathering"]}},
+        number={
+            'font': {'size': 48, 'color': COLORS["text"]},
+            'suffix': " hrs",
+            'valueformat': ",.1f"
         },
-        domain={'x': [0, 0.45], 'y': [0, 1]},
-        number={'font': {'size': 24, 'color': COLORS["text"]}},
+        domain={'x': [0, 0.45], 'y': [0.1, 0.9]},
     ))
     
+    # EHB indicator - positioned right
     fig.add_trace(go.Indicator(
-        mode="gauge+number",
+        mode="number",
         value=ehb,
-        title={'text': "EHB", 'font': {'size': 14}},
-        gauge={
-            'axis': {'range': [0, max(1000, ehb * 1.2)]},
-            'bar': {'color': COLORS["combat"]},
-            'bgcolor': COLORS["surface"],
-            'bordercolor': COLORS["muted"],
+        title={'text': "⚔️ Efficient Hours Bossed", 'font': {'size': 16, 'color': COLORS["combat"]}},
+        number={
+            'font': {'size': 48, 'color': COLORS["text"]},
+            'suffix': " hrs",
+            'valueformat': ",.1f"
         },
-        domain={'x': [0.55, 1], 'y': [0, 1]},
-        number={'font': {'size': 24, 'color': COLORS["text"]}},
+        domain={'x': [0.55, 1], 'y': [0.1, 0.9]},
     ))
     
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color=COLORS["text"], family="Nunito"),
-        height=200,
-        margin=dict(l=20, r=20, t=40, b=20),
+        height=150,
+        margin=dict(l=20, r=20, t=20, b=20),
     )
     
     return fig
