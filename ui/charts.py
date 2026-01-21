@@ -8,13 +8,18 @@ import pandas as pd
 from config import COLORS, SKILL_CATEGORIES
 
 
+def hex_to_rgba(hex_color: str, alpha: float) -> str:
+    """Convert hex color to rgba string."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f"rgba({r}, {g}, {b}, {alpha})"
+
+
 def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] = None) -> go.Figure:
     """
     Create a radar chart showing skill category distribution.
-    
-    Args:
-        skills: Dict of skill name -> SkillData
-        categories: Optional custom categories, defaults to SKILL_CATEGORIES
     """
     if categories is None:
         categories = SKILL_CATEGORIES
@@ -52,7 +57,7 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
         r=category_scores,
         theta=category_names,
         fill='toself',
-        fillcolor=f'{COLORS["primary"]}30',
+        fillcolor=hex_to_rgba(COLORS["primary"], 0.2),
         line=dict(color=COLORS["primary"], width=2),
         name='Skills'
     ))
@@ -64,11 +69,11 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
                 visible=True,
                 range=[0, 100],
                 showticklabels=False,
-                gridcolor=f'{COLORS["muted"]}30',
+                gridcolor=hex_to_rgba(COLORS["muted"], 0.3),
             ),
             angularaxis=dict(
-                gridcolor=f'{COLORS["muted"]}30',
-                linecolor=f'{COLORS["muted"]}30',
+                gridcolor=hex_to_rgba(COLORS["muted"], 0.3),
+                linecolor=hex_to_rgba(COLORS["muted"], 0.3),
             ),
         ),
         showlegend=False,
@@ -121,7 +126,7 @@ def create_playstyle_bars(scores: Dict[str, float]) -> go.Figure:
         xaxis=dict(
             range=[0, 100],
             showgrid=True,
-            gridcolor=f'{COLORS["muted"]}20',
+            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
             title=None,
         ),
         yaxis=dict(
@@ -184,7 +189,7 @@ def create_boss_distribution(bosses: Dict[str, Any], top_n: int = 10) -> go.Figu
     fig.update_layout(
         xaxis=dict(
             showgrid=True,
-            gridcolor=f'{COLORS["muted"]}20',
+            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
             title="Kill Count",
         ),
         yaxis=dict(
@@ -310,12 +315,12 @@ def create_journey_timeline(timeline: List[Dict], milestones: List[Dict] = None)
     fig.update_layout(
         xaxis=dict(
             showgrid=True,
-            gridcolor=f'{COLORS["muted"]}20',
+            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
             title=None,
         ),
         yaxis=dict(
             showgrid=True,
-            gridcolor=f'{COLORS["muted"]}20',
+            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
             title="Total Level",
         ),
         paper_bgcolor='rgba(0,0,0,0)',

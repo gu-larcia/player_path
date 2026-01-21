@@ -9,40 +9,40 @@ from .styles import get_account_badge
 
 
 def render_player_card(profile: PlayerProfile) -> None:
-    """Render the main player info card."""
+    """Render the main player info card using Streamlit native components."""
     
-    badge = get_account_badge(profile.player_type)
+    # Use a container with custom styling
+    badge_html = get_account_badge(profile.player_type)
     
+    # Player name and subtitle
     st.markdown(f"""
-    <div class="player-card">
-        <h2>{profile.display_name}{badge}</h2>
-        <div class="subtitle">
-            Combat {profile.combat_level} • {profile.total_level} Total • Build: {profile.build.title()}
-        </div>
-        
-        <div class="archetype-badge">{profile.archetype}</div>
-        <div class="archetype-description">{profile.archetype_description}</div>
-        
-        <div class="stat-grid">
-            <div class="stat-item">
-                <div class="stat-value">{profile.total_level:,}</div>
-                <div class="stat-label">Total Level</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{profile.total_experience:,}</div>
-                <div class="stat-label">Total XP</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{profile.ehp:,.1f}</div>
-                <div class="stat-label">EHP</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{profile.ehb:,.1f}</div>
-                <div class="stat-label">EHB</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="player-card">
+<h2>{profile.display_name}{badge_html}</h2>
+<div style="color: #888; font-size: 14px; margin-bottom: 16px;">
+Combat {profile.combat_level} • {profile.total_level} Total • Build: {profile.build.title()}
+</div>
+<div class="archetype-badge">{profile.archetype}</div>
+<div class="archetype-description">{profile.archetype_description}</div>
+<div class="stat-grid">
+<div class="stat-item">
+<div class="stat-value">{profile.total_level:,}</div>
+<div class="stat-label">Total Level</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">{profile.total_experience:,}</div>
+<div class="stat-label">Total XP</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">{profile.ehp:,.1f}</div>
+<div class="stat-label">EHP</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">{profile.ehb:,.1f}</div>
+<div class="stat-label">EHB</div>
+</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
 
 
 def render_data_coverage(coverage: str, snapshot_count: int) -> None:
@@ -51,10 +51,10 @@ def render_data_coverage(coverage: str, snapshot_count: int) -> None:
     icon = "📊" if snapshot_count > 10 else "📉" if snapshot_count > 0 else "❓"
     
     st.markdown(f"""
-    <div class="data-coverage">
-        {icon} <strong>Historical Data:</strong> {coverage}
-    </div>
-    """, unsafe_allow_html=True)
+<div class="data-coverage">
+{icon} <strong>Historical Data:</strong> {coverage}
+</div>
+""", unsafe_allow_html=True)
 
 
 def render_top_items(
@@ -66,38 +66,38 @@ def render_top_items(
     """Render a ranked list of items."""
     
     st.markdown(f"""
-    <div class="section-header">
-        <span style="font-size: 24px;">{icon}</span>
-        <h3>{title}</h3>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="section-header">
+<span style="font-size: 24px;">{icon}</span>
+<h3>{title}</h3>
+</div>
+""", unsafe_allow_html=True)
     
     if not items:
         st.markdown("""
-        <div style="color: #888; font-style: italic; padding: 20px;">
-            No data available
-        </div>
-        """, unsafe_allow_html=True)
+<div style="color: #888; font-style: italic; padding: 20px;">
+No data available
+</div>
+""", unsafe_allow_html=True)
         return
     
     for name, value in items:
         display_name = name.replace("_", " ").title()
         st.markdown(f"""
-        <div class="top-item">
-            <span class="top-item-name">{display_name}</span>
-            <span class="top-item-value">{value_formatter(value)}</span>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="top-item">
+<span class="top-item-name">{display_name}</span>
+<span class="top-item-value">{value_formatter(value)}</span>
+</div>
+""", unsafe_allow_html=True)
 
 
 def render_section_header(title: str, icon: str = "📊") -> None:
     """Render a section header with icon."""
     st.markdown(f"""
-    <div class="section-header">
-        <span style="font-size: 24px;">{icon}</span>
-        <h3>{title}</h3>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="section-header">
+<span style="font-size: 24px;">{icon}</span>
+<h3>{title}</h3>
+</div>
+""", unsafe_allow_html=True)
 
 
 def format_xp(xp: int) -> str:

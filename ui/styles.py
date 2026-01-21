@@ -2,48 +2,46 @@
 
 from config import COLORS
 
+# Convert hex colors to rgba for transparency support
+def hex_to_rgba(hex_color: str, alpha: float) -> str:
+    """Convert hex color to rgba string."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f"rgba({r}, {g}, {b}, {alpha})"
+
+# Pre-compute rgba values
+PRIMARY_20 = hex_to_rgba(COLORS['primary'], 0.2)
+PRIMARY_40 = hex_to_rgba(COLORS['primary'], 0.4)
+SECONDARY_40 = hex_to_rgba(COLORS['secondary'], 0.4)
+MUTED_30 = hex_to_rgba(COLORS['muted'], 0.3)
+
 CUSTOM_CSS = f"""
 <style>
-    /* Import distinctive fonts */
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap');
     
-    /* Global styles */
     .stApp {{
         font-family: 'Nunito', sans-serif;
     }}
     
-    /* Headers with medieval flair */
     h1, h2, h3 {{
         font-family: 'Cinzel', serif !important;
         color: {COLORS['primary']} !important;
-        letter-spacing: 0.5px;
     }}
     
-    /* Player card styling */
     .player-card {{
         background: linear-gradient(145deg, {COLORS['surface']} 0%, {COLORS['background']} 100%);
-        border: 1px solid {COLORS['primary']}40;
+        border: 1px solid {PRIMARY_40};
         border-radius: 12px;
         padding: 24px;
         margin-bottom: 20px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }}
     
-    .player-card h2 {{
-        margin-bottom: 8px;
-        font-size: 28px;
-    }}
-    
-    .player-card .subtitle {{
-        color: {COLORS['muted']};
-        font-size: 14px;
-        margin-bottom: 16px;
-    }}
-    
-    /* Archetype badge */
     .archetype-badge {{
         display: inline-block;
-        background: linear-gradient(135deg, {COLORS['primary']}30 0%, {COLORS['secondary']} 100%);
+        background: linear-gradient(135deg, {PRIMARY_20} 0%, {COLORS['secondary']} 100%);
         border: 1px solid {COLORS['primary']};
         border-radius: 20px;
         padding: 8px 20px;
@@ -58,13 +56,11 @@ CUSTOM_CSS = f"""
         color: {COLORS['muted']};
         font-style: italic;
         font-size: 13px;
-        margin-top: 4px;
     }}
     
-    /* Stat grid */
     .stat-grid {{
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 16px;
         margin-top: 20px;
     }}
@@ -92,14 +88,13 @@ CUSTOM_CSS = f"""
         margin-top: 4px;
     }}
     
-    /* Section headers */
     .section-header {{
         display: flex;
         align-items: center;
         gap: 12px;
         margin: 32px 0 16px 0;
         padding-bottom: 8px;
-        border-bottom: 2px solid {COLORS['primary']}40;
+        border-bottom: 2px solid {PRIMARY_40};
     }}
     
     .section-header h3 {{
@@ -107,9 +102,8 @@ CUSTOM_CSS = f"""
         font-size: 20px;
     }}
     
-    /* Data coverage indicator */
     .data-coverage {{
-        background: {COLORS['secondary']}40;
+        background: {SECONDARY_40};
         border-left: 3px solid {COLORS['primary']};
         padding: 12px 16px;
         border-radius: 0 8px 8px 0;
@@ -118,11 +112,6 @@ CUSTOM_CSS = f"""
         color: {COLORS['muted']};
     }}
     
-    .data-coverage strong {{
-        color: {COLORS['text']};
-    }}
-    
-    /* Top items list */
     .top-item {{
         display: flex;
         justify-content: space-between;
@@ -145,7 +134,6 @@ CUSTOM_CSS = f"""
         color: {COLORS['primary']};
     }}
     
-    /* Empty state */
     .empty-state {{
         text-align: center;
         padding: 60px 20px;
@@ -164,7 +152,6 @@ CUSTOM_CSS = f"""
         margin-bottom: 8px;
     }}
     
-    /* Account type badges */
     .account-badge {{
         display: inline-block;
         padding: 4px 10px;
@@ -172,51 +159,13 @@ CUSTOM_CSS = f"""
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         margin-left: 8px;
     }}
     
-    .account-badge.ironman {{
-        background: #808080;
-        color: white;
-    }}
-    
-    .account-badge.hardcore {{
-        background: #8B0000;
-        color: white;
-    }}
-    
-    .account-badge.ultimate {{
-        background: #1a1a1a;
-        color: #808080;
-        border: 1px solid #808080;
-    }}
-    
-    .account-badge.group {{
-        background: #006400;
-        color: white;
-    }}
-    
-    /* Metric bar */
-    .metric-bar {{
-        height: 8px;
-        background: {COLORS['background']};
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: 8px;
-    }}
-    
-    .metric-bar-fill {{
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease;
-    }}
-    
-    /* Category colors */
-    .combat {{ color: {COLORS['combat']}; }}
-    .gathering {{ color: {COLORS['gathering']}; }}
-    .artisan {{ color: {COLORS['artisan']}; }}
-    .support {{ color: {COLORS['support']}; }}
+    .account-badge.ironman {{ background: #808080; color: white; }}
+    .account-badge.hardcore {{ background: #8B0000; color: white; }}
+    .account-badge.ultimate {{ background: #1a1a1a; color: #808080; border: 1px solid #808080; }}
+    .account-badge.group {{ background: #006400; color: white; }}
 </style>
 """
 
@@ -234,13 +183,8 @@ def render_empty_state(title: str, message: str, icon: str = "📭") -> str:
 
 def render_api_status(has_key: bool, rate_limit: str) -> str:
     """Render API status indicator."""
-    color = "#22c55e" if has_key else "#eab308"
     icon = "🔑" if has_key else "⚠️"
-    return f"""
-    <div style="text-align: right; font-size: 12px; color: #888;">
-        {icon} {rate_limit}
-    </div>
-    """
+    return f'<div style="text-align: right; font-size: 12px; color: #888;">{icon} {rate_limit}</div>'
 
 
 def get_account_badge(player_type: str) -> str:
