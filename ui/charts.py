@@ -1,34 +1,22 @@
 """Plotly chart builders for player analytics."""
 
 import plotly.graph_objects as go
-import plotly.express as px
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import pandas as pd
+import math
 
 from config import COLORS, SKILL_CATEGORIES
 
 
-def hex_to_rgba(hex_color: str, alpha: float) -> str:
-    """Convert hex color to rgba string."""
-    hex_color = hex_color.lstrip('#')
-    r = int(hex_color[0:2], 16)
-    g = int(hex_color[2:4], 16)
-    b = int(hex_color[4:6], 16)
-    return f"rgba({r}, {g}, {b}, {alpha})"
-
-
 def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] = None) -> go.Figure:
-    """
-    Create a radar chart showing skill category distribution.
-    """
+    """Create a radar chart showing skill category distribution."""
     if categories is None:
         categories = SKILL_CATEGORIES
     
-    # Calculate normalized scores per category
     category_names = []
     category_scores = []
     
-    max_possible_xp = 200_000_000  # Max XP per skill
+    max_possible_xp = 200_000_000
     
     for cat_name, skill_names in categories.items():
         total_xp = sum(
@@ -37,9 +25,7 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
             if s in skills
         )
         max_xp = max_possible_xp * len(skill_names)
-        # Use log scale for better visualization
         if total_xp > 0:
-            import math
             score = math.log10(total_xp + 1) / math.log10(max_xp + 1) * 100
         else:
             score = 0
@@ -47,7 +33,6 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
         category_names.append(cat_name)
         category_scores.append(score)
     
-    # Close the radar
     category_names.append(category_names[0])
     category_scores.append(category_scores[0])
     
@@ -57,7 +42,7 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
         r=category_scores,
         theta=category_names,
         fill='toself',
-        fillcolor=hex_to_rgba(COLORS["primary"], 0.2),
+        fillcolor='rgba(212, 175, 55, 0.2)',
         line=dict(color=COLORS["primary"], width=2),
         name='Skills'
     ))
@@ -69,11 +54,11 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
                 visible=True,
                 range=[0, 100],
                 showticklabels=False,
-                gridcolor=hex_to_rgba(COLORS["muted"], 0.3),
+                gridcolor='rgba(136, 136, 136, 0.3)',
             ),
             angularaxis=dict(
-                gridcolor=hex_to_rgba(COLORS["muted"], 0.3),
-                linecolor=hex_to_rgba(COLORS["muted"], 0.3),
+                gridcolor='rgba(136, 136, 136, 0.3)',
+                linecolor='rgba(136, 136, 136, 0.3)',
             ),
         ),
         showlegend=False,
@@ -90,7 +75,6 @@ def create_skill_radar(skills: Dict[str, Any], categories: Dict[str, List[str]] 
 def create_playstyle_bars(scores: Dict[str, float]) -> go.Figure:
     """Create horizontal bar chart for playstyle dimensions."""
     
-    # Define readable labels
     labels = {
         "skiller_vs_pvmer": "Skiller ← → PvMer",
         "boss_diversity": "Boss Diversity",
@@ -126,7 +110,7 @@ def create_playstyle_bars(scores: Dict[str, float]) -> go.Figure:
         xaxis=dict(
             range=[0, 100],
             showgrid=True,
-            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
+            gridcolor='rgba(136, 136, 136, 0.2)',
             title=None,
         ),
         yaxis=dict(
@@ -146,7 +130,6 @@ def create_playstyle_bars(scores: Dict[str, float]) -> go.Figure:
 def create_boss_distribution(bosses: Dict[str, Any], top_n: int = 10) -> go.Figure:
     """Create horizontal bar chart of top bosses by KC."""
     
-    # Get top bosses
     boss_data = [
         (b.display_name, b.kills)
         for b in bosses.values()
@@ -156,7 +139,6 @@ def create_boss_distribution(bosses: Dict[str, Any], top_n: int = 10) -> go.Figu
     boss_data = boss_data[:top_n]
     
     if not boss_data:
-        # Empty state
         fig = go.Figure()
         fig.add_annotation(
             text="No boss kills recorded",
@@ -189,7 +171,7 @@ def create_boss_distribution(bosses: Dict[str, Any], top_n: int = 10) -> go.Figu
     fig.update_layout(
         xaxis=dict(
             showgrid=True,
-            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
+            gridcolor='rgba(136, 136, 136, 0.2)',
             title="Kill Count",
         ),
         yaxis=dict(
@@ -209,7 +191,6 @@ def create_boss_distribution(bosses: Dict[str, Any], top_n: int = 10) -> go.Figu
 def create_skill_distribution(skills: Dict[str, Any]) -> go.Figure:
     """Create treemap showing skill XP distribution."""
     
-    # Build hierarchical data
     labels = []
     parents = []
     values = []
@@ -222,15 +203,12 @@ def create_skill_distribution(skills: Dict[str, Any]) -> go.Figure:
         "Support": COLORS["support"],
     }
     
-    # Add root
     labels.append("Total XP")
     parents.append("")
-    values.append(0)  # Will be sum of children
+    values.append(0)
     colors.append(COLORS["surface"])
     
-    # Add categories and skills
     for cat_name, skill_names in SKILL_CATEGORIES.items():
-        # Category node
         cat_xp = sum(
             skills[s].experience 
             for s in skill_names 
@@ -241,7 +219,6 @@ def create_skill_distribution(skills: Dict[str, Any]) -> go.Figure:
         values.append(cat_xp)
         colors.append(category_colors.get(cat_name, COLORS["muted"]))
         
-        # Skill nodes
         for skill in skill_names:
             if skill in skills and skills[skill].experience > 0:
                 labels.append(skill.title())
@@ -291,7 +268,6 @@ def create_journey_timeline(timeline: List[Dict], milestones: List[Dict] = None)
     
     fig = go.Figure()
     
-    # Total level line
     fig.add_trace(go.Scatter(
         x=df["date"],
         y=df["total_level"],
@@ -302,7 +278,6 @@ def create_journey_timeline(timeline: List[Dict], milestones: List[Dict] = None)
         hovertemplate="<b>%{x|%Y-%m-%d}</b><br>Total Level: %{y:,}<extra></extra>",
     ))
     
-    # Add milestone markers if available
     if milestones:
         for m in milestones:
             fig.add_vline(
@@ -315,12 +290,12 @@ def create_journey_timeline(timeline: List[Dict], milestones: List[Dict] = None)
     fig.update_layout(
         xaxis=dict(
             showgrid=True,
-            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
+            gridcolor='rgba(136, 136, 136, 0.2)',
             title=None,
         ),
         yaxis=dict(
             showgrid=True,
-            gridcolor=hex_to_rgba(COLORS["muted"], 0.2),
+            gridcolor='rgba(136, 136, 136, 0.2)',
             title="Total Level",
         ),
         paper_bgcolor='rgba(0,0,0,0)',
@@ -346,7 +321,6 @@ def create_ehp_ehb_gauge(ehp: float, ehb: float) -> go.Figure:
     
     fig = go.Figure()
     
-    # EHP gauge
     fig.add_trace(go.Indicator(
         mode="gauge+number",
         value=ehp,
@@ -361,7 +335,6 @@ def create_ehp_ehb_gauge(ehp: float, ehb: float) -> go.Figure:
         number={'font': {'size': 24, 'color': COLORS["text"]}},
     ))
     
-    # EHB gauge
     fig.add_trace(go.Indicator(
         mode="gauge+number",
         value=ehb,

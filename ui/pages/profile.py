@@ -1,7 +1,7 @@
 """Player Profile page - main profile view."""
 
 import streamlit as st
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from analysis import PlayerProfile
 from ui.components import (
@@ -33,6 +33,8 @@ def render_profile_page(
         journey_data.get("snapshot_count", 0)
     )
     
+    st.divider()
+    
     # Two-column layout for core visualizations
     col1, col2 = st.columns(2)
     
@@ -46,6 +48,8 @@ def render_profile_page(
         bars_fig = create_playstyle_bars(profile.playstyle_scores)
         st.plotly_chart(bars_fig, use_container_width=True, config={'displayModeBar': False})
     
+    st.divider()
+    
     # EHP/EHB gauges
     render_section_header("Efficiency Metrics", "⏱️")
     gauge_fig = create_ehp_ehb_gauge(profile.ehp, profile.ehb)
@@ -54,17 +58,19 @@ def render_profile_page(
     # Efficiency explanation
     with st.expander("What are EHP and EHB?"):
         st.markdown("""
-        **EHP (Efficient Hours Played)** estimates how many hours you've spent training skills,
-        assuming optimal methods. Higher EHP indicates more time spent skilling.
-        
-        **EHB (Efficient Hours Bossed)** estimates how many hours you've spent killing bosses,
-        based on expected kills per hour at each boss. Higher EHB indicates more PvM experience.
-        
-        The ratio of EHP to EHB helps determine your playstyle orientation:
-        - **High EHP, Low EHB** → Skiller-oriented
-        - **Low EHP, High EHB** → PvM-oriented
-        - **Balanced** → All-rounder
-        """)
+**EHP (Efficient Hours Played)** estimates how many hours you've spent training skills,
+assuming optimal methods. Higher EHP indicates more time spent skilling.
+
+**EHB (Efficient Hours Bossed)** estimates how many hours you've spent killing bosses,
+based on expected kills per hour at each boss. Higher EHB indicates more PvM experience.
+
+The ratio of EHP to EHB helps determine your playstyle orientation:
+- **High EHP, Low EHB** → Skiller-oriented
+- **Low EHP, High EHB** → PvM-oriented
+- **Balanced** → All-rounder
+""")
+    
+    st.divider()
     
     # Top skills and bosses side by side
     col1, col2 = st.columns(2)
