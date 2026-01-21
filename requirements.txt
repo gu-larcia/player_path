@@ -1,0 +1,8 @@
+# OSRS Player Analytics
+# Player profile and playstyle analysis using WiseOldMan API
+
+streamlit>=1.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+plotly>=5.18.0
